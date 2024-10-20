@@ -8,7 +8,7 @@ import {LicensingModule} from "@story-protocol/protocol-core/contracts/modules/l
 import {PILicenseTemplate} from "@story-protocol/protocol-core/contracts/modules/licensing/PILicenseTemplate.sol";
 
 /// @dev this is a simple registry to store the item data on Flow, and create ipAssets
-contract ItemRegistry is ERC721 {
+contract CommandRegistry is ERC721 {
   
   IPAssetRegistry public immutable IP_ASSET_REGISTRY;
   LicensingModule public immutable LICENSING_MODULE;
@@ -26,7 +26,7 @@ contract ItemRegistry is ERC721 {
   mapping(uint256 => address) public tokenToIpId;
 
 
-  constructor() ERC721("dextraItem", "dIT") {
+  constructor() ERC721("dextraCommand", "deC") {
     LICENSING_MODULE = LicensingModule(0xf49da534215DA7b48E57A41d41dac25C912FCC60);
     IP_ASSET_REGISTRY = IPAssetRegistry(0xe34A78B3d658aF7ad69Ff1EFF9012ECa025a14Be);
     PIL_TEMPLATE = PILicenseTemplate(0x8BB1ADE72E21090Fc891e1d4b88AC5E57b27cB31);
@@ -47,8 +47,8 @@ contract ItemRegistry is ERC721 {
     address ipId = IP_ASSET_REGISTRY.register(block.chainid, address(this), tokenId);
     tokenToIpId[tokenHeight] = ipId;
 
-    // Commercial Remix
-    LICENSING_MODULE.attachLicenseTerms(ipId, address(PIL_TEMPLATE), 3);
+    // Non Commercial Social Remixing
+    LICENSING_MODULE.attachLicenseTerms(ipId, address(PIL_TEMPLATE), 1);
 
     tokenHeight++;
   }
