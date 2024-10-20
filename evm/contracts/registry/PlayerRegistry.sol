@@ -3,9 +3,9 @@ pragma solidity ^0.8.20;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-import {IPAssetRegistry} from "@storyprotocol/core/registries/IPAssetRegistry.sol";
-import {LicensingModule} from "@storyprotocol/core/modules/licensing/LicensingModule.sol";
-import {PILicenseTemplate} from "@storyprotocol/core/modules/licensing/PILicenseTemplate.sol";
+import {IPAssetRegistry} from "@story-protocol/protocol-core/contracts/registries/IPAssetRegistry.sol";
+import {LicensingModule} from "@story-protocol/protocol-core/contracts/modules/licensing/LicensingModule.sol";
+import {PILicenseTemplate} from "@story-protocol/protocol-core/contracts/modules/licensing/PILicenseTemplate.sol";
 
 /// @dev this is a simple registry to store the item data on Flow, and create ipAssets
 contract PlayerRegistry is ERC721 {
