@@ -3,17 +3,13 @@ pragma solidity ^0.8.23;
 
 contract Exit is ERC721 {
 
-  string direction;
-  address room;
   bool isEgg; // If true, the exit is an easter egg, ie, hidden
-  address ip;
+  mapping(string => address) directionToRoom;
 
   uint256 tokenHeight;
 
 
-  constructor(string memory _direction, address _room, bool _isEgg) {
-    direction = _direction;
-    room = _room;
+  constructor(bool _isEgg) {
     isEgg = _isEgg;
   }
 
