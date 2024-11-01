@@ -17,6 +17,10 @@ import {IPlayer} from "../_i/IPlayer.sol";
 
 abstract contract dTAGelement is Initializable, ERC721Upgradeable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
 
+  string public name;
+  string public image;
+  string public description;
+
   address public creator;
   address public gameManager;
   
@@ -39,12 +43,18 @@ abstract contract dTAGelement is Initializable, ERC721Upgradeable, AccessControl
   function __dTAGelement_init(
     address _creator, 
     address _manager,
-    uint256 _price
+    uint256 _price,
+    string memory _name,
+    string memory _image,
+    string memory _description
   ) internal onlyInitializing {
     __AccessControl_init();
     gameManager = _manager;
     creator = _creator;
     price = _price;
+    name = _name;
+    image = _image;
+    description = _description;
     _grantRole(CREATOR_ROLE, _creator); // for withdrawals
     _grantRole(MANAGER_ROLE, _manager);
     _grantRole(WHITELIST_ROLE, _creator); // for IP protection
@@ -52,20 +62,22 @@ abstract contract dTAGelement is Initializable, ERC721Upgradeable, AccessControl
 
   /** Element Functions */
 
-  function mint(address to) external payable {
+  function mint(address to) internal payable {
     this.mint(to, tokenHeight++);
   }
 
-  function mint(address to, uint256 tokenId) external payable {
+  function mint(address to, uint256 tokenId) internal payable {
     
-    require(msg.value > price, "Insufficient funds sent");
+    require(msg.value >= price, "Insufficient funds sent");
 
     _safeMint(to, tokenId);
     owners[tokenId] = to;
 
     // ~6.25% to dTAG treasury for sponsoring gas
-    uint256 treasuryAmount = msg.value >> 4;
-    payable(gameManager).transfer(treasuryAmount);
+    if (price > 0) {
+      uint256 treasuryAmount = price >> 4;
+      payable(gameManager).transfer(treasuryAmount);
+    }
 
     if (msg.value > price) {
       payable(msg.sender).transfer(msg.value - price);
@@ -74,14 +86,18 @@ abstract contract dTAGelement is Initializable, ERC721Upgradeable, AccessControl
   }
 
   /// @notice Withdraws the balance of the game element to the creator of the element
-  function withdraw() external onlyManagerOrCreator() {
+  function withdraw() external onlyManagerOrCreator nonreentrant {
     payable(creator).transfer(address(this).balance);
   }
+
+  virtual function describe() public view returns (string memory) {}
 
 
   /** Game Manager Functions */
 
   function updateManager(address _manager) external onlyRole(MANAGER_ROLE) {
+    require(_manager != address(0), "Manager cannot be the zero address");
+    _revokeRole(MANAGER_ROLE, gameManager);
     gameManager = _manager;
     _grantRole(MANAGER_ROLE, _manager);
   }

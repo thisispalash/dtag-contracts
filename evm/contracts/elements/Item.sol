@@ -14,10 +14,6 @@ import {dTAGutils} from "../dTAGutils.sol";
 
 contract Item is Initializable, dTAGelement, IItem {
 
-  string public itemName;
-  string public itemImage;
-  string public itemDescription;
-
   ItemProperties public properties;
 
   mapping(address player => uint256) public useTurn;
@@ -38,10 +34,7 @@ contract Item is Initializable, dTAGelement, IItem {
     address _related
   ) external initializer {
     __ERC721_init(_name, "dTAGi");
-    __dTAGelement_init(_creator, _manager, uint256(0));
-    itemName = _name;
-    itemImage = _image;
-    itemDescription = _description;
+    __dTAGelement_init(_creator, _manager, uint256(0), _name, _image, _description);
     _assign(_itemType, _itemAction, _value, _related, _cost, _cooldown);
 
     ItemInitialized(
@@ -141,6 +134,10 @@ contract Item is Initializable, dTAGelement, IItem {
 
   function itemType() public view returns (ItemType) {
     return properties.itemType;
+  }
+
+  function describe() public view override returns (string memory) {
+    /// TODO
   }
 
 
