@@ -11,7 +11,7 @@ interface IDoorway {
     Effect effect;
   }
 
-  event PathRegistered(bytes32 indexed direction, address indexed room);
+  event PathRegistered(string indexed direction, address indexed room);
 
   function initialize(
     string memory _name,
@@ -33,7 +33,7 @@ interface IDoorway {
    * @param _room The address of the room to connect to
    */
   function registerPath(
-    bytes32 _direction,
+    string memory _direction,
     address _room
   ) external;
 
@@ -44,7 +44,7 @@ interface IDoorway {
    * @return The name of the room connected to the given direction.
    */
   function peek(
-    bytes32 _direction
+    string memory _direction
   ) external view returns (string memory);
 
   /**
@@ -54,7 +54,7 @@ interface IDoorway {
    * @param _player The address of the player crossing the doorway.
    */
   function cross(
-    bytes32 _direction,
+    string memory _direction,
     address _player
   ) external;
 }

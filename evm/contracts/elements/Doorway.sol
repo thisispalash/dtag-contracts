@@ -13,12 +13,14 @@ contract Doorway is Initializable, dTAGelement, IDoorway {
 
   DoorwayProperties private properties;
 
-  mapping(bytes32 direction => address room) private directionToRoom;
+  mapping(bytes32 directionHash => address room) private directionToRoom;
+  mapping(bytes32 directionHash => string direction) private directionToString;
 
 
-  modifier validDirection(bytes32 _direction) {
-    require(_direction.length > 0, "Direction cannot be empty");
-    require(directionToRoom[_direction] != address(0), "Direction not registered");
+  modifier validDirection(string memory _direction) {
+    require(bytes(_direction).length > 0, "Direction cannot be empty");
+    bytes32 _hash = keccak256(abi.encode(_direction));
+    require(directionToRoom[_hash] != address(0), "Direction not registered");
     _;
   }
 
@@ -46,32 +48,38 @@ contract Doorway is Initializable, dTAGelement, IDoorway {
   }
 
   function registerPath(
-    bytes32 _direction,
+    string memory _direction,
     address _room
   ) external 
     onlyManager 
     nonreentrant 
   {
-    require(_isRoom(_room), "Given address is not a room");
-    require(directionToRoom[_direction] == address(0), "Direction already registered");
-    
-    directionToRoom[_direction] = _room;
+    require(dTAGutils.isRoom(_room), "Given address is not a room");
+    require(IRoom(_room).isWhitelisted(creator), "Creator has not licensed this room");
+    require(bytes(_direction).length > 0, "Direction cannot be empty");
+
+    bytes32 _hash = keccak256(abi.encode(_direction));
+    require(directionToRoom[_hash] == address(0), "Direction already registered");
+
+    directionToRoom[_hash] = _room;
+    directionToString[_hash] = _direction;
 
     emit PathRegistered(_direction, _room);
   }
 
   function peek(
-    bytes32 _direction
+    string memory _direction
   ) external 
     view 
     validDirection(_direction) 
     returns (string memory) 
   {
-    return IRoom(directionToRoom[_direction]).name();
+    bytes32 _hash = keccak256(abi.encode(_direction));
+    return IRoom(directionToRoom[_hash]).name();
   }
 
   function cross(
-    bytes32 _direction, 
+    string memory _direction, 
     address _player
   ) external 
     nonreentrant 
@@ -82,7 +90,8 @@ contract Doorway is Initializable, dTAGelement, IDoorway {
     bool continueToRoom = _applyEffect(_player);
 
     if (continueToRoom) {
-      IPlayer(_player).move(directionToRoom[_direction]);
+      bytes32 _hash = keccak256(abi.encode(_direction));
+      IPlayer(_player).move(directionToRoom[_hash]);
     }
   }
 
