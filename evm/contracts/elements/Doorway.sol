@@ -27,13 +27,13 @@ contract Doorway is Initializable, dTAGelement, IDoorway {
   constructor() {}
 
   function initialize(
+    address _creator,
+    address _manager,
     string memory _name,
     string memory _image,
     string memory _description,
     bool _isEgg,
     uint8 _cost,
-    address _creator,
-    address _manager,
     EffectType _effectType,
     uint8 _effectValue,
     address _effectRelated
