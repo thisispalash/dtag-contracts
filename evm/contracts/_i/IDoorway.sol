@@ -26,17 +26,35 @@ interface IDoorway {
     address _effectRelated
   ) external;
 
+  /**
+   * Registers a path to a room.
+   * 
+   * @param _direction The direction of the doorway.
+   * @param _room The address of the room to connect to
+   */
   function registerPath(
     bytes32 _direction,
     address _room
   ) external;
 
+  /**
+   * Peeks the room connected to the given direction.
+   * 
+   * @param _direction The direction to peek in.
+   * @return The name of the room connected to the given direction.
+   */
   function peek(
     bytes32 _direction
   ) external view returns (string memory);
 
+  /**
+   * Crosses the doorway in the given direction. Doorway effect is applied to the player.
+   * 
+   * @param _direction The direction to cross.
+   * @param _player The address of the player crossing the doorway.
+   */
   function cross(
     bytes32 _direction,
     address _player
-  ) external returns (string memory);
+  ) external;
 }

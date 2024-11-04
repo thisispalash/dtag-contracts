@@ -95,7 +95,7 @@ contract Doorway is Initializable, dTAGelement, IDoorway {
     else {
       return description;
     }
-    
+
   }
 
   function _assignEffect(
@@ -228,6 +228,20 @@ contract Doorway is Initializable, dTAGelement, IDoorway {
       return true;
     }
 
+  }
+
+
+  /** ERC standard(s) compliance functions */
+
+  function supportsInterface(
+    bytes4 interfaceId
+  ) public 
+    view 
+    override 
+    returns (bool) 
+  {
+    return interfaceId == type(IDoorway).interfaceId 
+      || super.supportsInterface(interfaceId);
   }
 
   uint256[50] private __gap;
