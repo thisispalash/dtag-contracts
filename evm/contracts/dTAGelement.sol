@@ -8,14 +8,14 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/se
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import {IItem} from "../_i/IItem.sol";
-import {INPC} from "../_i/INPC.sol";
-import {IDoorway} from "../_i/IDoorway.sol";
-import {IRoom} from "../_i/IRoom.sol";
-import {IAdventure} from "../_i/IAdventure.sol";
-import {IPlayer} from "../_i/IPlayer.sol";
+import {IItem} from "./_i/IItem.sol";
+import {INPC} from "./_i/INPC.sol";
+import {IDoorway} from "./_i/IDoorway.sol";
+import {IRoom} from "./_i/IRoom.sol";
+import {IAdventure} from "./_i/IAdventure.sol";
+import {IPlayer} from "./_i/IPlayer.sol";
 
-import {IdTAGelement} from "./IdTAGelement.sol";
+import {IdTAGelement} from "./_i/dTAG/IdTAGelement.sol";
 
 abstract contract dTAGelement is 
   Initializable, 
