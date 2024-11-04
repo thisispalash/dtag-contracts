@@ -1,17 +1,21 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.23;
 
-import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 
-abstract contract dTAGfactory is Initializable, ERC721Upgradeable {
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import {ERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol";
 
-  struct ElementStruct {
-    address creator;
-    address element;
-  }
+import {IdTAGfactory} from "./_i/dTAG/IdTAGfactory.sol";
+
+abstract contract dTAGfactory is 
+  Initializable, 
+  ERC165Upgradeable, 
+  ERC721Upgradeable, 
+  IdTAGfactory 
+{
 
   address public gameManager;
 
@@ -19,8 +23,6 @@ abstract contract dTAGfactory is Initializable, ERC721Upgradeable {
   mapping(uint256 tokenId => ElementStruct) public tokenToElement;
 
   UpgradeableBeacon public beacon;
-
-  event ElementCreated(uint256 indexed tokenId, address indexed element, address indexed creator);
 
   constructor() {}
 
@@ -32,11 +34,11 @@ abstract contract dTAGfactory is Initializable, ERC721Upgradeable {
     beacon = new UpgradeableBeacon(_impl, _manager);
   }
 
-  function mint(address _creator, bytes memory data) internal returns (address) {
+  function mint(address _creator, bytes memory _data) internal returns (address) {
 
     BeaconProxy proxy = new BeaconProxy(
       address(beacon),
-      data
+      _data
     );
 
     uint256 tokenId = tokenHeight;
@@ -63,6 +65,17 @@ abstract contract dTAGfactory is Initializable, ERC721Upgradeable {
   function getCreator(uint256 _tokenId) public view returns (address) {
     require(_tokenId < tokenHeight, "Element does not exist");
     return tokenToElement[_tokenId].creator;
+  }
+
+
+  /** ERC standard(s) compliance functions */
+
+  function supportsInterface(bytes4 interfaceId) 
+    public view 
+    override(ERC165Upgradeable, ERC721Upgradeable) 
+    returns (bool) {
+    return interfaceId == type(IdTAGfactory).interfaceId 
+      || super.supportsInterface(interfaceId);
   }
 
   uint256[50] private __gap;

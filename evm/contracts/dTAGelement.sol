@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.23;
 
-import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
 import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import {ERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
@@ -15,7 +15,16 @@ import {IRoom} from "../_i/IRoom.sol";
 import {IAdventure} from "../_i/IAdventure.sol";
 import {IPlayer} from "../_i/IPlayer.sol";
 
-abstract contract dTAGelement is Initializable, ERC721Upgradeable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
+import {IdTAGelement} from "./IdTAGelement.sol";
+
+abstract contract dTAGelement is 
+  Initializable, 
+  ERC165Upgradeable, 
+  ERC721Upgradeable, 
+  AccessControlUpgradeable, 
+  ReentrancyGuardUpgradeable, 
+  IdTAGelement 
+{
 
   string public name;
   string public image;
@@ -31,6 +40,11 @@ abstract contract dTAGelement is Initializable, ERC721Upgradeable, AccessControl
   bytes32 public constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
   bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
   bytes32 public constant WHITELIST_ROLE = keccak256("WHITELIST_ROLE");
+
+  modifier onlyManager() {
+    _checkRole(MANAGER_ROLE);
+    _;
+  }
 
   modifier onlyManagerOrCreator() {
     _checkRole(MANAGER_ROLE);
@@ -48,7 +62,9 @@ abstract contract dTAGelement is Initializable, ERC721Upgradeable, AccessControl
     string memory _image,
     string memory _description
   ) internal onlyInitializing {
+    __ERC165_init();
     __AccessControl_init();
+    __ReentrancyGuard_init();
     gameManager = _manager;
     creator = _creator;
     price = _price;
@@ -79,7 +95,9 @@ abstract contract dTAGelement is Initializable, ERC721Upgradeable, AccessControl
       payable(gameManager).transfer(treasuryAmount);
     }
 
+    // Return any excess funds to the sender
     if (msg.value > price) {
+      // should this be msg.sender?
       payable(msg.sender).transfer(msg.value - price);
     }
 
@@ -90,13 +108,10 @@ abstract contract dTAGelement is Initializable, ERC721Upgradeable, AccessControl
     payable(creator).transfer(address(this).balance);
   }
 
-  virtual function describe() public view returns (string memory) {}
-
-
   /** Game Manager Functions */
 
-  function updateManager(address _manager) external onlyRole(MANAGER_ROLE) {
-    require(_manager != address(0), "Manager cannot be the zero address");
+  function updateManager(address _manager) external onlyManager {
+    require(_manager != address(0), "New manager cannot be the zero address");
     _revokeRole(MANAGER_ROLE, gameManager);
     gameManager = _manager;
     _grantRole(MANAGER_ROLE, _manager);
@@ -113,51 +128,29 @@ abstract contract dTAGelement is Initializable, ERC721Upgradeable, AccessControl
    */
 
   /// @notice checks if a creator can include this item in their adventure
-  function canInclude(address _creator) public view returns (bool) {
+  function isWhitelisted(address _creator) public view returns (bool) {
     return hasRole(WHITELIST_ROLE, _creator);
   }
 
-  function addToWhitelist(address _creator) external onlyRole(MANAGER_ROLE) {
+  function addToWhitelist(address _creator) external onlyManager {
     _grantRole(WHITELIST_ROLE, _creator);
   }
 
-  function removeFromWhitelist(address _creator) external onlyRole(MANAGER_ROLE) {
+  function removeFromWhitelist(address _creator) external onlyManager {
     _revokeRole(WHITELIST_ROLE, _creator);
   }
 
 
-  /** ERC165 stuff */
-
-  function _isItem() internal view returns (bool) {
-    return IERC165Upgradeable(address(this)).supportsInterface(type(IItem).interfaceId);
-  }
-
-  function _isNPC() internal view returns (bool) {
-    return IERC165Upgradeable(address(this)).supportsInterface(type(INPC).interfaceId);
-  }
-
-  function _isDoorway() internal view returns (bool) {
-    return IERC165Upgradeable(address(this)).supportsInterface(type(IDoorway).interfaceId);
-  }
-
-  function _isRoom() internal view returns (bool) {
-    return IERC165Upgradeable(address(this)).supportsInterface(type(IRoom).interfaceId);
-  }
-
-  function _isAdventure() internal view returns (bool) {
-    return IERC165Upgradeable(address(this)).supportsInterface(type(IAdventure).interfaceId);
-  }
-
-  function _isPlayer() internal view returns (bool) {
-    return IERC165Upgradeable(address(this)).supportsInterface(type(IPlayer).interfaceId);
-  }
+  /** ERC standard(s) compliance functions */
 
   function supportsInterface(bytes4 interfaceId) 
     public view 
     virtual
-    override(AccessControlUpgradeable, ERC721Upgradeable) 
+    override(ERC165Upgradeable, ERC721Upgradeable, AccessControlUpgradeable) 
     returns (bool) {
-    return super.supportsInterface(interfaceId);
+    return 
+      interfaceId == type(IdTAGelement).interfaceId 
+      || super.supportsInterface(interfaceId);
   }
 
   uint256[50] private __gap;

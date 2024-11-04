@@ -24,21 +24,39 @@ enum ItemAction {
   VIBES // check outcome of gamble items
 }
 
-/** TODO below */
+enum EffectType {
+  NO_EFFECT,
 
-enum Condition {
+  DEATH,
+  REVIVE,
+
+  HEALTH_UP,
+  HEALTH_DOWN,
+  ENERGY_UP,
+  ENERGY_DOWN,
+
+  TELEPORT,
+  GET_ITEM
+}
+
+struct Effect {
+  EffectType effect;
+  uint8 value;
+  address related;
+}
+
+// TODO below
+
+enum ConditionType {
 
   ON_PEEK,
 
-  // Item based conditions, see ItemCondition struct
   ITEM_EXISTS,
   ITEM_DNE,
 
-  // Room based conditions
   ENTRY,
   EXIT,
-  
-  // State based conditions, see StateCondition struct
+
   HEALTH_ABOVE,
   HEALTH_BELOW,
   HEALTH_EQUAL,
@@ -47,24 +65,10 @@ enum Condition {
   ENERGY_EQUAL
 }
 
-struct ItemCondition {
-  Condition condition;
-  address item;
-}
-
-struct StateCondition {
-  Condition condition;
+struct Condition {
+  ConditionType condition;
   uint8 value;
-}
-
-enum Effect {
-  DEATH,
-  HEALTH_UP,
-  HEALTH_DOWN,
-  ENERGY_UP,
-  ENERGY_DOWN,
-  TELEPORT,
-  GET_ITEM
+  address related;
 }
 
 enum CommandType {
