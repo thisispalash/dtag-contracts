@@ -53,7 +53,7 @@ contract Item is Initializable, dTAGelement, IItem {
   }
 
 
-  function use(address player) external onlyRole(MANAGER_ROLE) nonReentrant {
+  function use(address player) external onlyManager nonReentrant {
 
     /// @dev no check for player ownership as some items can be _used_ without ownership
 
@@ -72,40 +72,40 @@ contract Item is Initializable, dTAGelement, IItem {
       );
     }
 
-    IPlayer(player).energy_down(properties.cost);
+    IPlayer(player).energyDown(properties.cost);
     useTurn[player] = turn;
 
     if (properties.itemAction == ItemAction.HEALTH_UP) {
-      IPlayer(player).health_up(properties.value);
+      IPlayer(player).healthUp(properties.value);
     }
 
     else if (properties.itemAction == ItemAction.HEALTH_DOWN) {
-      IPlayer(player).health_down(properties.value);
+      IPlayer(player).healthDown(properties.value);
     }
 
     else if (properties.itemAction == ItemAction.ENERGY_UP) {
-      IPlayer(player).energy_up(properties.value);
+      IPlayer(player).energyUp(properties.value);
     }
 
     else if (properties.itemAction == ItemAction.ENERGY_DOWN) {
-      IPlayer(player).energy_down(properties.value);
+      IPlayer(player).energyDown(properties.value);
     }
 
     else if (properties.itemAction == ItemAction.GAMBLE_HEALTH) {
       uint64 random = dTAGutils.getRandom();
       if (random & 1) { // that's odd
-        IPlayer(player).health_down(properties.value);
+        IPlayer(player).healthDown(properties.value);
       } else {
-        IPlayer(player).health_up(properties.value);
+        IPlayer(player).healthUp(properties.value);
       }
     }
 
     else if (properties.itemAction == ItemAction.GAMBLE_ENERGY) {
       uint64 random = dTAGutils.getRandom();
       if (random & 1) { // that's odd
-        IPlayer(player).energy_down(properties.value);
+        IPlayer(player).energyDown(properties.value);
       } else {
-        IPlayer(player).energy_up(properties.value);
+        IPlayer(player).energyUp(properties.value);
       }
     }
 
@@ -117,7 +117,7 @@ contract Item is Initializable, dTAGelement, IItem {
     }
 
     else if (properties.itemAction == ItemAction.PEEK_DOOR) {
-      IDoorway(properties.related).peek(player);
+      IRoom(properties.related).peekDoors();
     }
 
     else {
@@ -152,7 +152,7 @@ contract Item is Initializable, dTAGelement, IItem {
 
     if (_itemType == ItemType.DOORWAY) {
       require(_related != address(0), "Doorway item must have a related doorway");
-      require(_isDoorway(_related), "Related address is not a doorway");
+      require(dTAGutils.isDoorway(_related), "Related address is not a doorway");
     
       properties = ItemProperties({
         itemType: _itemType,
@@ -193,7 +193,7 @@ contract Item is Initializable, dTAGelement, IItem {
     else if (_itemType == ItemType.VIBE) {
       require(_related != address(0), "Vibe item must have a related gamble item");
       require(
-        _isItem(_related) && IItem(_related).itemType() == ItemType.GAMBLE,
+        dTAGutils.isItem(_related) && IItem(_related).itemType() == ItemType.GAMBLE,
         "Related address is not a valid gamble item"
       );
 
