@@ -4,13 +4,13 @@ pragma solidity ^0.8.23;
 
 contract Player is ERC721 {
 
-  address owner;
+  address human;
   uint8 health;
   uint8 energy;
   address ip;
 
-  constructor(address _owner, address _ip) {
-    owner = _owner;
+  constructor(address _human, address _ip) {
+    human = _human;
     health = 255;
     energy = 255;
     ip = _ip;
@@ -32,8 +32,8 @@ contract Player is ERC721 {
     energy -= value;
   }
 
-  function owner() external view returns (address) {
-    return owner;
+  function human() external view returns (address) {
+    return human;
   }
 
 }
