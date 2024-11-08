@@ -72,12 +72,21 @@ struct Condition {
 }
 
 enum CommandType {
+  // consumed by Adventure
   START,
+  
+  // consumed by Room
   PICK,
   DROP,
-  USE,
-  GO,
   PEEK,
+  
+  // consumed by Item
+  USE,
+  
+  // consumed by Doorwau
+  GO,
+  
+  // consumed by NPC
   CHAT
 }
 
