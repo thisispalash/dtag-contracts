@@ -27,25 +27,23 @@ contract Adventure is ERC721 {
 
   public string title;
   public string description;
+
   internal address[] rooms;
+  internal address[] items;
+  internal address[] npcs;
+
   internal bool randomSpawn;
   internal address start_room;
   internal address end_room;
   public address achievement; // token received for reaching end_room
-  public uint256 price;
 
-  uint256 tokenHeight;
+  uint256 public price;
+  uint256 public tokenHeight;
 
-  struct GamePlay {
-    address player;
-    uint256 turns;
-    address[] moves;
-    Outcome[] outcomes;
-  }
 
   mapping(uint256 => address) owners;
-  mapping(uint256 => GamePlay) plays;
-  mapping(address => GamePlay) playerPlays;
+  mapping(uint256 => GamePlay[]) plays;
+  mapping(address => GamePlay[]) playerPlays;
 
 
   modifier isPurchased(address player) {

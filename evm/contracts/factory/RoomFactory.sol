@@ -3,38 +3,35 @@ pragma solidity ^0.8.23;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-import {Room} from "../Room.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
+
+import {dTAGfactory} from "../dTAGfactory.sol";
+
+import {IRoom} from "../_i/IRoom.sol";
 
 /// @dev this contract is used on Flow to create new Rooms
-contract RoomFactory is ERC721 {
+contract RoomFactory is Initializable, dTAGfactory {
 
-  struct RoomStruct {
-    address creator;
-    Room room;
+  constructor() {}
+
+  function initialize(
+    address _manager,
+    address _implementation
+  ) external initializer {
+    __ERC721_init("dTAGroomFactory", "dTAGrF");
+    __dTAGfactory_init(_manager, _implementation);
   }
 
-  uint256 tokenHeight;
-  mapping(uint256 => RoomStruct) public tokenToRoom;
+  function create(
 
-  constructor() ERC721("dextraRoom", "deR") {}
+  ) external returns (address) {
 
-  function mint(
-    address _creator,
-    string memory _name, 
-    string memory _description, 
-    address[] memory _exits, 
-    address _item
-  ) external {
-
-    Room i = new Room(_name, _description, _exits, _item);
-    RoomStruct memory s = RoomStruct({
-      creator: _creator,
-      Room: i
-    });
-
-    tokenToRoom[tokenHeight] = s;
-
-    _safeMint(_creator, tokenHeight);
-    tokenHeight++;
   }
+
+  function getRoom(uint256 _tokenId) external view returns (address) {
+    return getElement(_tokenId);
+  }
+
+  uint256[50] private __gap;
 }
